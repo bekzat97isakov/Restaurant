@@ -11,8 +11,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import peaksoft.entity.AuthInfo;
-import peaksoft.repository.AuthInfoRepository;
+import peaksoft.entity.User;
+import peaksoft.repository.UserRepository;
 
 import java.io.IOException;
 
@@ -20,7 +20,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final AuthInfoRepository authInfoRepository;
+    private final UserRepository userRepository;
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -35,13 +35,13 @@ public class JwtFilter extends OncePerRequestFilter {
             }else {
                 try {
                     String username = jwtUtil.validateTokenAndRetrieveClaim(jwt);
-                    AuthInfo authInfo = authInfoRepository.findByEmail(username).get();
+                    User user = userRepository.findByEmail(username).get();
 
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
-                                    authInfo.getEmail(),
+                                    user.getEmail(),
                                     null,
-                                    authInfo.getAuthorities());
+                                    user.getAuthorities());
                     if (SecurityContextHolder.getContext().getAuthentication() == null){
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     }

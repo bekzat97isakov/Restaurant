@@ -1,4 +1,14 @@
 package peaksoft.dto.request;
 
-public record MenuItemRequest() {
+import java.math.BigDecimal;
+
+public record MenuItemRequest(
+        String name,
+        String image,
+        BigDecimal price,
+        String description,
+        boolean isVegetarian,
+        String subcategory
+
+) {
 }

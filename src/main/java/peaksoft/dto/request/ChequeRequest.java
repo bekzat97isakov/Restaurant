@@ -1,4 +1,11 @@
 package peaksoft.dto.request;
 
-public record ChequeRequest() {
+import java.util.Set;
+
+public record ChequeRequest(
+        Set<String> foods,
+        String email
+
+
+) {
 }

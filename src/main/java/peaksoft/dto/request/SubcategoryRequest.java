@@ -1,4 +1,8 @@
 package peaksoft.dto.request;
 
-public record SubcategoryRequest() {
+public record SubcategoryRequest(
+
+        String name,
+        CategoryRequest categoryRequest
+) {
 }

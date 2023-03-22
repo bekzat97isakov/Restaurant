@@ -1,46 +1,80 @@
 package peaksoft.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import peaksoft.dto.request.RestaurantRequest;
+import peaksoft.dto.response.RestaurantResponse;
+import peaksoft.dto.response.SimpleResponse;
+import peaksoft.dto.response.UserResponse;
 import peaksoft.entity.Restaurant;
+import peaksoft.entity.enums.Role;
 import peaksoft.repository.RestaurantRepository;
+import peaksoft.repository.UserRepository;
 import peaksoft.service.RestaurantService;
 
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 @Service
+@RequiredArgsConstructor
 public class RestaurantServiceImpl implements RestaurantService {
-
     private final RestaurantRepository restaurantRepository;
-    @Autowired
-    public RestaurantServiceImpl(RestaurantRepository restaurantRepository) {
-        this.restaurantRepository = restaurantRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public SimpleResponse saveRestaurant(RestaurantRequest restaurantRequest) {
+        if (!restaurantRepository.existsRestaurant()){
+            Restaurant restaurant = new Restaurant();
+            restaurant.setName(restaurantRequest.name());
+            restaurant.setLocation(restaurantRequest.location());
+            restaurant.setRestType(restaurantRequest.restType());
+            restaurant.setService(restaurantRequest.service());
+            restaurant.setNumberOfEmployees(userRepository.findAllUsers().size());
+            restaurantRepository.save(restaurant);
+        }else {
+            return new SimpleResponse(HttpStatus.FORBIDDEN,"The restaurant already exists!");
+        }
+        return SimpleResponse.builder().status(HttpStatus.OK)
+                .message("Successfully saved").build();
     }
 
     @Override
-    public Restaurant saveRestaurant(Restaurant restaurant) {
-        return restaurantRepository.save(restaurant);
+    public RestaurantResponse getAllRestaurant() {
+        return restaurantRepository.findAllRestaurants();
     }
 
     @Override
-    public Restaurant getByIdRestaurant(Long restaurantId) {
-        return restaurantRepository.findById(restaurantId).get();
+    public SimpleResponse updateRestaurantById(Long id, RestaurantRequest restaurantRequest) {
+        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Null"));
+        restaurant.setName(restaurantRequest.name());
+        restaurant.setLocation(restaurantRequest.location());
+        restaurant.setRestType(restaurantRequest.restType());
+        restaurantRepository.save(restaurant);
+        return new SimpleResponse(HttpStatus.OK,"Successfully update!");
     }
 
     @Override
-    @Transactional
-    public Restaurant updateRestaurantById(Long restaurantId,Restaurant restaurant) {
-        Restaurant restaurant1 = getByIdRestaurant(restaurantId);
-        restaurant1.setName(restaurant.getName());
-        restaurant1.setLocation(restaurant.getLocation());
-        restaurant1.setRestType(restaurant.getRestType());
-        restaurant1.setNumberOfEmployees(restaurant.getNumberOfEmployees());
-        restaurant1.setService(restaurant.getService());
-        restaurantRepository.save(restaurant1);
-        return restaurant1;
+    public SimpleResponse deleteRestaurant(Long id) {
+        restaurantRepository.deleteById(id);
+        return new SimpleResponse(HttpStatus.OK,"Successfully delete");
     }
 
     @Override
-    public void deleteRestaurantById(Long restaurantId) {
-        restaurantRepository.deleteById(restaurantId);
+    public String count() {
+        Set<UserResponse> allUsers = userRepository.findAllUsers(restaurantRepository.findRestaurant().getId());
+        int countChef=0;
+        int countWaiter=0;
+        for (UserResponse u: allUsers){
+            if (u.role().equals(Role.Walter)){
+                countWaiter++;
+            }
+            if (u.role().equals(Role.Chef)){
+                countChef++;
+            }
+        }
+        return "Currently the restaurant has "+allUsers.size()+" employees .\n" +
+                "Chefs: "+countChef
+                +"\nWaiters: "+countWaiter;
     }
 }

@@ -13,17 +13,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import peaksoft.repository.AuthInfoRepository;
+import peaksoft.repository.UserRepository;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebAppSecurity {
-    private final AuthInfoRepository authInfoRepository;
+    private final UserRepository userRepository;
     @Bean
     public UserDetailsService userDetailsService(){
-        return email-> authInfoRepository.findByEmail(email).orElseThrow(
+        return email-> userRepository.findByEmail(email).orElseThrow(
                 ()->new UsernameNotFoundException(email + "is not found!"));
     }
     @Bean

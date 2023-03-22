@@ -1,13 +1,18 @@
 package peaksoft.service;
 
+import peaksoft.dto.request.StopListRequest;
+import peaksoft.dto.request.StopListUpdateRequest;
+import peaksoft.dto.response.SimpleResponse;
+import peaksoft.dto.response.StopListResponse;
 import peaksoft.entity.StopList;
 
 import java.util.List;
+import java.util.Set;
 
 public interface StopListService {
-    StopList saveStopList(StopList stopList);
-    List<StopList> getAllStopList();
-    StopList getByIdStopList(Long stopListId);
-    StopList updateByIdStopList(Long stopListId, StopList stopList);
-    void deleteByIdStopList(Long stopListId);
+    SimpleResponse saveStopList(Long id, StopListRequest stopListRequest);
+    StopListResponse getById(Long id);
+    Set<StopListResponse> getAllStopLists();
+    SimpleResponse update(Long id, StopListUpdateRequest stopListRequest);
+    SimpleResponse delete(Long id);
 }

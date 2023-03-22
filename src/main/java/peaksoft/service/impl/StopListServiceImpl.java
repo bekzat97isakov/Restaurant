@@ -1,44 +1,62 @@
 package peaksoft.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import peaksoft.dto.request.StopListRequest;
+import peaksoft.dto.request.StopListUpdateRequest;
+import peaksoft.dto.response.SimpleResponse;
+import peaksoft.dto.response.StopListResponse;
 import peaksoft.entity.StopList;
+import peaksoft.repository.MenuItemRepository;
 import peaksoft.repository.StopListRepository;
 import peaksoft.service.StopListService;
 
-import java.util.List;
-
+import java.util.NoSuchElementException;
+import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class StopListServiceImpl implements StopListService {
     private final StopListRepository stopListRepository;
-
+    private final MenuItemRepository menuItemRepository;
     @Override
-    public StopList saveStopList(StopList stopList) {
-        return stopListRepository.save(stopList);
+    public SimpleResponse saveStopList(Long id, StopListRequest stopListRequest) {
+        if(stopListRepository.counts(stopListRequest.date(),menuItemRepository.findById(id).orElseThrow().getName())>0){
+            throw new RuntimeException("has already");
+        }
+        StopList stopList = new StopList();
+        stopList.setDate(stopListRequest.date());
+        stopList.setReason(stopListRequest.reason());
+        var byId = menuItemRepository.findById(id).orElseThrow(()->new NoSuchElementException("This id:"+id+" does not exist"));
+        stopList.setMenuItem(byId);
+        stopListRepository.save(stopList);
+        return new SimpleResponse(HttpStatus.OK,"Successfully saved!!!");
     }
 
     @Override
-    public List<StopList> getAllStopList() {
-        return stopListRepository.findAll();
+    public StopListResponse getById(Long id) {
+        return stopListRepository.getByStopListId(id);
     }
 
     @Override
-    public StopList getByIdStopList(Long stopListId) {
-        return stopListRepository.findById(stopListId).get();
+    public Set<StopListResponse> getAllStopLists() {
+        return stopListRepository.getAll();
     }
 
     @Override
-    public StopList updateByIdStopList(Long stopListId, StopList stopList) {
-        StopList stopList1 = getByIdStopList(stopListId);
-        stopList1.setReason(stopList.getReason());
-        stopList1.setDate(stopList.getDate());
-        stopListRepository.save(stopList1);
-        return stopList1;
+    public SimpleResponse update(Long id, StopListUpdateRequest stopListRequest) {
+        StopList stopList = new StopList();
+        stopList.setDate(stopListRequest.date());
+        stopList.setReason(stopListRequest.reason());
+        stopList.setMenuItem(menuItemRepository.findByName(stopListRequest.name()));
+        stopListRepository.save(stopList);
+        return new SimpleResponse(HttpStatus.OK,"Successfully updated!!!");
+
     }
 
     @Override
-    public void deleteByIdStopList(Long stopListId) {
-        stopListRepository.deleteById(stopListId);
+    public SimpleResponse delete(Long id) {
+        stopListRepository.deleteById(id);
+        return new SimpleResponse(HttpStatus.OK,"Successfully deleted!!");
     }
 }

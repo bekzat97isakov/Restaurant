@@ -1,13 +1,10 @@
 package peaksoft.dto.request;
 
-import lombok.Builder;
-
 import java.time.LocalDate;
 
-@Builder
-public record StopListRequest(
+public record StopListUpdateRequest(
         String reason,
-        LocalDate date
-
+        LocalDate date,
+        String name
 ) {
 }

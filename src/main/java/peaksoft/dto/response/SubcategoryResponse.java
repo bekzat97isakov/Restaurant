@@ -1,4 +1,6 @@
 package peaksoft.dto.response;
 
-public record SubcategoryResponse() {
+public record SubcategoryResponse(
+        String name
+) {
 }

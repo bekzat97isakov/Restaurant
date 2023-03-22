@@ -1,4 +1,13 @@
 package peaksoft.dto.request;
 
-public record CategoryRequest() {
+import lombok.Builder;
+
+import java.util.List;
+
+@Builder
+public record CategoryRequest(
+        String name,
+        List<String> subcategory
+
+) {
 }

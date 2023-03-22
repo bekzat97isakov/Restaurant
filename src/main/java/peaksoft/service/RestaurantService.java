@@ -1,10 +1,15 @@
 package peaksoft.service;
 
+import peaksoft.dto.request.RestaurantRequest;
+import peaksoft.dto.response.RestaurantResponse;
+import peaksoft.dto.response.SimpleResponse;
 import peaksoft.entity.Restaurant;
 
 public interface RestaurantService {
-    Restaurant saveRestaurant(Restaurant restaurant);
-    Restaurant getByIdRestaurant(Long restaurantId);
-    Restaurant updateRestaurantById(Long restaurantId,Restaurant restaurant);
-    void deleteRestaurantById(Long restaurantId);
+    SimpleResponse saveRestaurant(RestaurantRequest restaurantRequest);
+
+    RestaurantResponse getAllRestaurant();
+    SimpleResponse updateRestaurantById(Long id,RestaurantRequest restaurantRequest);
+    SimpleResponse deleteRestaurant(Long id);
+    String count();
 }
